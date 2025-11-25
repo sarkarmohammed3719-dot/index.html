@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>سێبوری بازرگانی (V38 Fixed)</title>
+    <title>سیستەمی کێڵگە (V38 Fixed)</title>
     <style>
         :root {
             --primary: #047857;
@@ -35,6 +35,1665 @@
         /* HEADER */
         header {
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white; 
+            padding-top: 80px; 
+            padding-bottom: 100px; 
+            border-bottom-left-radius: 35px; border-bottom-right-radius: 35px;
+            text-align: center; box-shadow: 0 10px 25px -5px rgba(4, 120, 87, 0.3);
+            position: relative; z-index: 1;
+        }
+
+        .header-actions {
+            position: absolute; top: 20px; left: 20px;
+            background: rgba(255,255,255,0.2); padding: 10px; border-radius: 50%;
+            cursor: pointer; backdrop-filter: blur(5px);
+            transition: transform 0.2s;
+            font-size: 1.2rem;
+        }
+        .header-actions:active { transform: scale(0.9); }
+
+        .debt-book-btn {
+            position: absolute; top: 20px; right: 20px;
+            background: #FFFFFF; 
+            color: var(--purple); 
+            padding: 8px 16px; 
+            border-radius: 25px;
+            cursor: pointer; 
+            font-size: 0.95rem; font-weight: 800;
+            display: flex; align-items: center; gap: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+            z-index: 10;
+        }
+        .debt-book-btn:active { transform: scale(0.95); background: #F3F4F6; }
+
+        .market-ticker {
+            background: rgba(0,0,0,0.2); padding: 6px 16px; border-radius: 30px;
+            font-size: 0.9rem; display: inline-block; margin-bottom: 10px; backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        /* MARKET RADAR */
+        .radar-container {
+            padding: 0 15px; margin-top: -80px; margin-bottom: 15px;
+            position: relative; z-index: 5;
+        }
+        .radar-card {
+            background: linear-gradient(to right, #FFFBEB, #FFFFFF);
+            border-right: 5px solid var(--gold);
+            padding: 15px; border-radius: 16px; margin-bottom: 10px;
+            box-shadow: 0 10px 20px -5px rgba(217, 119, 6, 0.15);
+            animation: slideIn 0.5s ease;
+            border: 1px solid var(--gold-light);
+        }
+        .radar-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .radar-icon { font-size: 1.5rem; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% {transform: scale(1);} 50% {transform: scale(1.1);} 100% {transform: scale(1);} }
+        .radar-title { font-weight: 800; color: #92400E; font-size: 0.95rem; }
+        .radar-msg { font-size: 0.85rem; color: #4B5563; line-height: 1.5; font-weight: 600; }
+        .radar-tag { 
+            background: var(--gold); color: white; padding: 2px 8px; 
+            border-radius: 6px; font-size: 0.7rem; font-weight: bold; margin-right: auto; 
+        }
+
+        /* VET ALERTS */
+        .vet-alerts-container {
+            padding: 0 15px; margin-bottom: 15px; position: relative; z-index: 5;
+        }
+        .vet-alert {
+            background: white; border-left: 5px solid var(--warning);
+            padding: 12px; border-radius: 12px; margin-bottom: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: space-between;
+            animation: slideIn 0.4s ease;
+        }
+        @keyframes slideIn { from {opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
+        .vet-icon { font-size: 1.5rem; margin-left: 10px; }
+        .vet-text { font-size: 0.85rem; font-weight: bold; color: #374151; flex: 1; }
+        .vet-dismiss { color: #9CA3AF; cursor: pointer; padding: 5px; }
+
+        /* STOCK CARDS */
+        .stock-section {
+            padding: 0 15px; 
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; 
+            position: relative; z-index: 2;
+        }
+        .stock-card {
+            background: white; border-radius: 18px; padding: 15px 10px; text-align: center;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); border: 2px solid white;
+            transition: transform 0.2s; position: relative; overflow: hidden;
+        }
+        .stock-card:active { transform: scale(0.98); }
+        
+        .emoji-icon {
+            width: 50px; height: 50px; 
+            background: #ECFDF5; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2rem; margin: 0 auto 5px auto;
+            box-shadow: 0 4px 8px rgba(4, 120, 87, 0.1); position: relative;
+        }
+
+        .stock-num { font-weight: 800; font-size: 1.3rem; color: var(--text-main); direction: ltr; }
+        .stock-lbl { font-size: 0.85rem; color: #6B7280; font-weight: 700; margin-bottom: 5px;}
+        .age-tag { font-size: 0.7rem; color: var(--warning); display: inline-block; font-weight: bold; background: #FFFBEB; border-radius: 6px; padding: 2px 6px; margin-bottom: 5px;}
+
+        /* SMART MARGIN BADGE */
+        .margin-badge {
+            display: block; font-size: 0.75rem; font-weight: 800; 
+            padding: 3px 0; border-radius: 6px; margin-bottom: 8px;
+        }
+        .margin-badge.profit { color: #059669; background: #D1FAE5; }
+        .margin-badge.loss { color: #DC2626; background: #FEE2E2; }
+        .margin-badge.neutral { color: #6B7280; background: #F3F4F6; }
+
+        .quick-sell-btn {
+            background: var(--primary); color: white;
+            font-size: 0.8rem; padding: 8px 0; border-radius: 10px; cursor: pointer;
+            width: 100%; display: block; font-weight: bold; opacity: 0.95;
+            box-shadow: 0 4px 6px rgba(4,120,87,0.2);
+        }
+
+        /* CARDS GENERAL */
+        .card-base {
+            background: white; margin: 15px; padding: 20px; border-radius: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04); border: 1px solid white;
+        }
+
+        /* SMART ANALYSIS */
+        .smart-card {
+            background: linear-gradient(to bottom right, #fff, #F0FDF4);
+            border-color: #D1FAE5;
+        }
+        .smart-title { font-weight: 700; font-size: 1rem; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; color: var(--primary); }
+        
+        .analysis-row {
+            background: rgba(255,255,255,0.7); border: 1px solid #E5E7EB;
+            border-radius: 16px; padding: 12px; margin-bottom: 10px;
+        }
+        .row-header { display: flex; justify-content: space-between; font-weight: 700; font-size: 0.9rem; margin-bottom: 5px; align-items: center;}
+        .row-details { display: flex; justify-content: space-between; font-size: 0.75rem; color: #6B7280; margin-bottom: 8px;}
+        
+        .price-edit-row {
+            display: flex; align-items: center; justify-content: space-between;
+            background: #F0FDF4; padding: 5px; border-radius: 10px; border: 1px dashed #A7F3D0;
+        }
+        .manual-price-input {
+            width: 90px; padding: 6px; border: 1px solid #D1D5DB; border-radius: 8px;
+            text-align: center; font-weight: bold; color: var(--primary); font-size: 0.9rem;
+        }
+        .profit-display { font-size: 0.8rem; font-weight: bold; margin-right: 5px; }
+
+        /* FINANCE STATS */
+        .finance-row { display: flex; justify-content: space-around; text-align: center; margin-bottom: 10px; }
+        .fin-val { font-weight: 800; direction: ltr; font-size: 1.1rem; margin-top: 5px; }
+        .progress-container { width: 100%; height: 8px; background: #E5E7EB; border-radius: 10px; overflow: hidden; display: flex; }
+        .progress-inc { height: 100%; background: var(--primary); }
+        .progress-exp { height: 100%; background: var(--danger); }
+
+        /* LIST & SEARCH */
+        .list-header { padding: 0 20px; font-weight: 700; margin-bottom: 10px; font-size: 0.95rem; color: var(--text-sec); display: flex; justify-content: space-between; align-items: center; }
+        
+        .search-container { padding: 0 15px 15px 15px; }
+        .t-list { padding: 0 15px; }
+        
+        .t-item {
+            background: white; margin-bottom: 12px; padding: 15px; border-radius: 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02); border: 1px solid white;
+        }
+        .t-item.inc { border-right: 5px solid var(--primary); } 
+        .t-item.exp { border-right: 5px solid var(--danger); }
+        .t-item.debt { border-right: 5px solid var(--purple); background: #F5F3FF; }
+        
+        .list-emoji-thumb {
+            width: 45px; height: 45px; background: #F3F4F6;
+            border-radius: 14px; display: flex; align-items: center; justify-content: center;
+            font-size: 1.8rem; flex-shrink: 0;
+        }
+
+        /* PAGINATION */
+        .pagination-controls {
+            display: flex; justify-content: center; align-items: center; gap: 15px;
+            margin: 20px 0 50px 0; padding: 0 15px;
+        }
+        .page-btn {
+            background: white; border: 1px solid #D1D5DB; color: #374151;
+            padding: 8px 16px; border-radius: 12px; font-weight: bold;
+            font-size: 0.9rem; cursor: pointer; transition: 0.2s;
+        }
+        .page-btn:disabled { opacity: 0.5; cursor: not-allowed; background: #F3F4F6; }
+        .page-btn:active { transform: scale(0.95); }
+        .page-info { font-size: 0.9rem; color: #6B7280; font-weight: bold; }
+
+        /* BUTTONS (Edit/Delete) */
+        .action-btn-group { display: flex; gap: 8px; margin-right: 10px; }
+        .btn-icon { 
+            width: 38px; height: 38px; 
+            border-radius: 12px; 
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: 0.2s;
+            font-size: 1.1rem; border: none;
+        }
+        .btn-icon.edit { background: #DBEAFE; color: #1E40AF; } 
+        .btn-icon.delete { background: #FEE2E2; color: #991B1B; }
+        .btn-icon.wa { background: #DCFCE7; color: #166534; }
+        .btn-icon:active { transform: scale(0.9); filter: brightness(0.95); }
+
+        /* FAB */
+        .fab {
+            position: fixed; bottom: 30px; left: 30px; width: 65px; height: 65px;
+            background: var(--primary); color: white; border-radius: 22px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.2rem; box-shadow: 0 15px 30px -5px rgba(4, 120, 87, 0.4); z-index: 100;
+            transition: transform 0.2s;
+        }
+        .fab:active { transform: scale(0.95); }
+
+        /* MODAL */
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+            display: none; align-items: flex-end; justify-content: center; z-index: 200;
+        }
+        .modal.active { display: flex; }
+        
+        .sheet {
+            background: white; width: 100%; border-top-left-radius: 30px; border-top-right-radius: 30px;
+            padding: 25px 20px 40px 20px; 
+            animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1); 
+            max-height: 92vh; overflow-y: auto;
+            overscroll-behavior: contain;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.1);
+        }
+        @keyframes slideUp { from {transform: translateY(100%);} to {transform: translateY(0);} }
+        
+        #debtListModal .sheet {
+            display: flex;
+            flex-direction: column;
+            overflow-y: hidden;
+        }
+        #debtList {
+            flex: 1;
+            overflow-y: auto; 
+            margin-bottom: 10px;
+            padding-right: 4px;
+        }
+
+        /* CLOSE BUTTON */
+        .btn-close { 
+            text-align: center; padding: 14px; color: var(--btn-close-text); background: var(--btn-close-bg);
+            font-weight: 800; margin-top: 10px; border-radius: 18px; cursor: pointer; transition: 0.2s; border: 1px solid transparent;
+            flex-shrink: 0;
+        }
+        .btn-close:active { transform: scale(0.98); background: #D1D5DB; }
+
+        /* Type Switcher */
+        .type-switch { display: flex; background: #F3F4F6; padding: 4px; border-radius: 18px; margin-bottom: 25px; border: 1px solid #E5E7EB; }
+        .type-opt { flex: 1; padding: 12px; text-align: center; border-radius: 14px; font-weight: 700; font-size: 0.9rem; color: #9CA3AF; transition: all 0.3s; }
+        
+        .type-opt.inc.active { background: white; color: var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.05); transform: scale(1.02); }
+        .type-opt.exp.active { background: white; color: var(--danger); box-shadow: 0 4px 10px rgba(0,0,0,0.05); transform: scale(1.02); }
+        .type-opt.die.active { background: white; color: var(--warning); box-shadow: 0 4px 10px rgba(0,0,0,0.05); transform: scale(1.02); }
+
+        /* CATEGORY GRID */
+        .cat-grid { 
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 30px; 
+        }
+        .cat-box { 
+            background: white; 
+            border: 2px solid #F3F4F6; 
+            border-radius: 20px; 
+            padding: 12px 5px; 
+            text-align: center; 
+            transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .cat-emoji { 
+            font-size: 2rem; display: block; margin-bottom: 6px; 
+            filter: grayscale(0.2); transition: 0.3s;
+        }
+        .cat-name { font-size: 0.75rem; font-weight: 700; color: #6B7280; }
+        
+        .cat-box.selected { 
+            border-color: var(--primary); 
+            background: #ECFDF5; 
+            box-shadow: 0 8px 15px -3px rgba(16, 185, 129, 0.25);
+            transform: translateY(-4px);
+        }
+        .cat-box.selected .cat-emoji { filter: grayscale(0) drop-shadow(0 2px 3px rgba(0,0,0,0.1)); transform: scale(1.1); }
+        .cat-box.selected .cat-name { color: var(--primary); }
+
+        /* Inputs */
+        .input-group { margin-bottom: 18px; }
+        .input-label { font-size: 0.85rem; font-weight: 700; color: #374151; margin-bottom: 8px; display: block; margin-right: 4px; }
+        .input-row { display: flex; gap: 12px; }
+        
+        .modern-input-wrapper {
+            position: relative; flex: 1;
+            background: var(--input-bg); border-radius: 16px;
+            display: flex; align-items: center; 
+            border: 2px solid #F3F4F6;
+            transition: all 0.3s ease;
+        }
+        .modern-input-wrapper:focus-within { 
+            background: white; 
+            border-color: var(--primary); 
+            box-shadow: 0 0 0 4px rgba(4, 120, 87, 0.1); 
+            transform: translateY(-1px);
+        }
+        .modern-input-wrapper.error { background: #FEF2F2; border-color: var(--danger); animation: shake 0.3s; }
+        
+        .modern-input { width: 100%; padding: 16px 14px; background: transparent; border: none; font-size: 1.05rem; font-weight: 700; color: var(--text-main); }
+        .input-icon { padding: 0 14px; color: #9CA3AF; font-size: 1.1rem; }
+        
+        .currency-toggle { display: flex; background: #F3F4F6; border-radius: 12px; margin-left: 6px; padding: 4px; align-items: center;}
+        .cur-opt { padding: 8px 12px; font-size: 0.8rem; font-weight: bold; border-radius: 10px; color: #6B7280; transition: 0.2s;}
+        .cur-opt.active { background: white; color: var(--text-main); box-shadow: 0 2px 4px rgba(0,0,0,0.08); }
+        
+        .btn-save { 
+            width: 100%; padding: 18px; background: var(--primary); color: white; border: none; 
+            border-radius: 20px; font-size: 1.15rem; font-weight: 800; margin-top: 15px;
+            box-shadow: 0 8px 20px -4px rgba(4, 120, 87, 0.4); transition: 0.2s;
+            position: relative; overflow: hidden;
+        }
+        .btn-save:active { transform: scale(0.98); box-shadow: 0 4px 10px -2px rgba(4, 120, 87, 0.3); }
+        .btn-save:disabled { background: #9CA3AF; box-shadow: none; opacity: 0.7; }
+        
+        /* REPORT TABLE */
+        .report-table-container { overflow-x: auto; margin-bottom: 20px; }
+        .report-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.9rem; }
+        .report-table th { 
+            text-align: right; color: #6B7280; padding: 12px 8px; border-bottom: 2px solid #E5E7EB; font-weight: 800; white-space: nowrap;
+        }
+        .report-table td { 
+            padding: 12px 8px; border-bottom: 1px solid #F3F4F6; font-weight: bold; color: var(--text-main); white-space: nowrap;
+        }
+        .report-table tr:last-child td { border-bottom: none; }
+        .report-net { direction: ltr; }
+
+        .btn-outline { width: 100%; padding: 14px; background: white; color: var(--text-main); border: 1px solid #E5E7EB; border-radius: 14px; font-weight: 600; margin-bottom: 10px;}
+        .settings-section {
+            background: #F9FAFB; border-radius: 16px; padding: 15px; margin-bottom: 20px;
+            border: 1px solid #E5E7EB;
+        }
+        .settings-label { font-weight: 700; font-size: 0.9rem; color: var(--text-main); margin-bottom: 8px; display: block; }
+        
+        /* DEBT TOGGLE */
+        .debt-toggle-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; padding: 10px; background: #F5F3FF; border-radius: 16px; border: 1px solid #E5E7EB;}
+        .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--purple); }
+        input:checked + .slider:before { transform: translateX(24px); }
+
+        .unit-price-hint { font-size: 0.75rem; color: var(--primary); margin-top: 4px; padding-right: 5px; display: none; }
+        .stock-limit-hint { font-size: 0.75rem; color: var(--text-sec); margin-top: 4px; padding-right: 5px; }
+        .stock-limit-hint.warning { color: var(--danger); font-weight: bold; }
+
+        /* --- Responsive Tweaks for better scaling --- */
+        @media (max-width: 360px) {
+            html { font-size: 15px; } /* بۆ مۆبایلە زۆر بچووکەکان */
+        }
+        
+        @media (min-width: 600px) {
+            html { font-size: 17px; } /* بۆ ئایپاد و تابلێت */
+        }
+
+        @media (min-width: 768px) {
+            /* بۆ شاشە پانەکان (تابلێت) */
+            .sheet { max-width: 500px; margin: 20px auto; border-radius: 24px; } 
+            .stock-section { grid-template-columns: repeat(4, 1fr); gap: 15px; } /* کاردەکانی سەرەوە لە ٤ ستووندا دادەنێین */
+            .cat-grid { grid-template-columns: repeat(6, 1fr); gap: 10px; } /* گرید کاتێگۆرییەکان دەکەین بە ٦ ستوون */
+            .cat-box { padding: 10px 5px; }
+            .cat-emoji { font-size: 1.8rem; }
+            .cat-name { font-size: 0.7rem; }
+            .modal { align-items: center; } /* مۆداڵەکان لە ناوەڕاستی شاشە پانەکەدا دێنە دەرەوە */
+        }
+
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-actions" onclick="openSettings()">⚙️</div>
+        
+        <div class="debt-book-btn" onclick="openDebtModal()">
+              <span>📕</span>
+              <span>دەفتەری قەرز</span>
+        </div>
+        
+        <div class="market-ticker">
+            بهای ١٠٠ دۆلار: <span id="rateDisplay" style="font-weight:bold; color:#FEF3C7; font-size:1.1rem;">141,350</span>
+        </div>
+        <h1>سیستەمی کێڵگە</h1>
+        <p style="opacity: 0.9; font-size: 0.8rem;">شیکاری زیرەکی بازاڕی کوردستان</p>
+    </header>
+
+    <div class="radar-container" id="marketRadar"></div>
+
+    <div class="vet-alerts-container" id="vetAlerts"></div>
+
+    <div class="stock-section">
+        <div class="stock-card">
+            <div class="emoji-icon">🦆</div>
+            <div class="stock-num" id="stockDuck">0</div>
+            <div class="stock-lbl">مراوی</div>
+            <span class="age-tag" id="ageDuck"></span>
+            <span class="margin-badge neutral" id="marginDuck">---</span>
+            <div class="quick-sell-btn" onclick="quickSell('مراوی')">💲فرۆشتن</div>
+        </div>
+        <div class="stock-card">
+            <div class="emoji-icon">🦃</div>
+            <div class="stock-num" id="stockTurkey">0</div>
+            <div class="stock-lbl">قەڵ</div>
+            <span class="age-tag" id="ageTurkey"></span>
+            <span class="margin-badge neutral" id="marginTurkey">---</span>
+            <div class="quick-sell-btn" onclick="quickSell('قەڵ')">💲فرۆشتن</div>
+        </div>
+        <div class="stock-card">
+            <div class="emoji-icon">🦢</div>
+            <div class="stock-num" id="stockGoose">0</div>
+            <div class="stock-lbl">قاز</div>
+            <span class="age-tag" id="ageGoose"></span>
+            <span class="margin-badge neutral" id="marginGoose">---</span>
+            <div class="quick-sell-btn" onclick="quickSell('قاز')">💲فرۆشتن</div>
+        </div>
+        <div class="stock-card">
+            <div class="emoji-icon">🐔</div>
+            <div class="stock-num" id="stockChicken">0</div>
+            <div class="stock-lbl">مرێشک</div>
+            <span class="age-tag" id="ageChicken"></span>
+            <span class="margin-badge neutral" id="marginChicken">---</span>
+            <div class="quick-sell-btn" onclick="quickSell('مرێشک')">💲فرۆشتن</div>
+        </div>
+    </div>
+
+    <div class="card-base smart-card">
+        <div class="smart-title">
+            <span>🧠 شیکاری و پێشبینی</span>
+            <span style="font-size:0.7rem; color:#047857; background:#D1FAE5; padding:2px 8px; border-radius:8px;">PRO Max</span>
+        </div>
+        
+        <div id="projectedProfit" style="text-align:center; margin-bottom:15px; padding:12px; background:white; border-radius:12px; display:none; border:1px dashed #A7F3D0;">
+            <div style="font-size:0.8rem; color:#065F46;">سەرمایەی چاوەڕوانکراو (فرۆشتن)</div>
+            <div id="totalAssetValue" style="font-weight:800; font-size:1.3rem; color:var(--primary); margin-top:5px;">0 IQD</div>
+        </div>
+        
+        <div id="feedAnalysis" style="margin-bottom:15px; padding:10px; background:#FFFBEB; border-radius:10px; display:none;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px dashed #FCD34D; padding-bottom:5px; margin-bottom:5px;">
+                 <span style="font-size:0.8rem; color:#92400E;">کۆی ئالیکی کڕدراو</span>
+                 <span id="totalFeedUsed" style="font-weight:bold; font-size:1rem; color:#D97706;">0 کگم</span>
+            </div>
+             <div style="display:flex; justify-content:space-between; align-items:center;">
+                 <span style="font-size:0.8rem; color:#92400E;">تێکڕای بەکارهێنانی ڕۆژانە</span>
+                 <span id="dailyFeedUsage" style="font-weight:bold; font-size:1rem; color:#059669;">0 کگم/ڕۆژ</span>
+            </div>
+        </div>
+
+        <div id="costAnalysis">
+            <div style="text-align:center; color:#9CA3AF; font-size:0.85rem; padding:10px;">داتای پێویست نییە بۆ شیکاری</div>
+        </div>
+    </div>
+
+    <div class="card-base finance-card">
+        <div class="finance-row">
+            <div>
+                <div style="font-size:0.8rem; color:#6B7280">کۆی فرۆشتن</div>
+                <div class="fin-val" id="totalIncomeDisp" style="color:var(--primary)">0</div>
+            </div>
+            <div>
+                <div style="font-size:0.8rem; color:#6B7280">قازانج (کاش)</div>
+                <div class="fin-val" id="totalBalance" style="color:#1F2937">0</div>
+            </div>
+            <div>
+                <div style="font-size:0.8rem; color:#6B7280">کۆی کڕین</div>
+                <div class="fin-val" id="totalExpense" style="color:var(--danger)">0</div>
+            </div>
+        </div>
+        <div class="progress-container">
+            <div id="barInc" class="progress-inc" style="width: 50%;"></div>
+            <div id="barExp" class="progress-exp" style="width: 50%;"></div>
+        </div>
+    </div>
+
+    <div class="list-header">تۆمارەکان</div>
+    
+    <div class="search-container">
+        <div class="modern-input-wrapper" style="background:white; border:1px solid #E5E7EB;">
+            <input type="text" class="modern-input" id="searchInput" placeholder="🔍 گەڕان (مراوی، ١٠٠٠، قەرز...)" oninput="resetPageAndRender()">
+        </div>
+    </div>
+
+    <div class="t-list" id="list"></div>
+    
+    <div class="pagination-controls" id="paginationControls">
+        <button class="page-btn" id="btnPrev" onclick="changePage(-1)">پێشتر</button>
+        <span class="page-info" id="pageInfo">پەڕەی ١</span>
+        <button class="page-btn" id="btnNext" onclick="changePage(1)">دواتر</button>
+    </div>
+
+    <div class="fab" onclick="openModal()">+</div>
+
+    <div class="modal" id="modal">
+        <div class="sheet">
+            <div class="type-switch">
+                <div class="type-opt inc active" id="btnInc" onclick="setType('income')">فرۆشتن</div>
+                <div class="type-opt exp" id="btnExp" onclick="setType('expense')">کڕین</div>
+                <div class="type-opt die" id="btnDie" onclick="setType('death')">مرداربو</div>
+            </div>
+
+            <div class="cat-grid" id="catGrid"></div>
+
+            <div class="input-group">
+                <label class="input-label">بەروار</label>
+                <div class="modern-input-wrapper">
+                    <input type="date" class="modern-input" id="txDate">
+                </div>
+            </div>
+
+            <div class="debt-toggle-row" id="debtToggleDiv" style="display:flex;">
+                <label style="font-weight:bold; color:#7C3AED;">فرۆشتن بە قەرز؟</label>
+                <label class="switch">
+                    <input type="checkbox" id="isDebtCheck" onchange="toggleDebtFields()">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div id="debtFieldsContainer" style="display:none;">
+                <div class="input-group">
+                    <label class="input-label">ناوی کڕیار (خاوەن قەرز)</label>
+                    <div class="modern-input-wrapper">
+                        <input type="text" class="modern-input" id="debtorName" placeholder="ناوی کڕیار بنووسە">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label class="input-label" style="color:var(--primary);">پێشەکی (Wasl) - ئەگەر وەرتگرتووە</label>
+                    <div class="modern-input-wrapper">
+                        <input type="tel" class="modern-input" id="downPayment" placeholder="0" style="font-weight:bold; color:var(--primary);">
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <div class="input-row">
+                    <div style="flex:1;">
+                        <div class="modern-input-wrapper" id="qtyWrapper">
+                            <input type="tel" class="modern-input" id="quantity" placeholder="ژمارە" oninput="validateAndCalc()">
+                            <div class="input-icon">#</div>
+                        </div>
+                        <div class="stock-limit-hint" id="stockHint"></div>
+                        <div class="unit-price-hint" id="unitPriceHint"></div>
+                    </div>
+                    
+                    <div class="modern-input-wrapper" id="ageInputDiv" style="display:none;">
+                        <input type="tel" class="modern-input" id="initialAge" placeholder="تەمەن (ڕۆژ)">
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-group" id="amountGroup">
+                <div class="modern-input-wrapper">
+                    <input type="tel" class="modern-input" id="amount" placeholder="بڕی پارە (کۆی گشتی)">
+                    <div class="currency-toggle">
+                        <div class="cur-opt active" id="currIQD" onclick="setCurr('IQD')">IQD</div>
+                        <div class="cur-opt" id="currUSD" onclick="setCurr('USD')">$</div>
+                    </div>
+                </div>
+                <div id="convertedAmount" style="text-align:right; font-size:0.8rem; color:#6B7280; margin-top:5px; height:15px; padding-right:5px;"></div>
+            </div>
+
+            <div class="input-group">
+                <div class="modern-input-wrapper">
+                    <input type="text" class="modern-input" id="note" placeholder="تێبینی (ئارەزوومەندانە)...">
+                    <div class="input-icon">✎</div>
+                </div>
+            </div>
+
+            <button class="btn-save" id="btnSave" onclick="saveItem()">تۆمارکردن ✓</button>
+            <div class="btn-close" onclick="closeSpecificModal('modal')">داخستن</div>
+        </div>
+    </div>
+
+    <div class="modal" id="debtListModal">
+        <div class="sheet">
+            <h3 style="text-align:center; margin-bottom:20px; color:#7C3AED;">📕 دەفتەری قەرز</h3>
+            
+            <div id="debtList">
+                </div>
+            
+            <div style="text-align:center; color:#9CA3AF;" id="noDebtMsg">هیچ قەرزێک تۆمار نەکراوە</div>
+            
+            <div class="btn-close" onclick="closeSpecificModal('debtListModal')">داخستن</div>
+        </div>
+    </div>
+
+    <div class="modal" id="settingsModal" style="align-items:center;">
+        <div class="sheet" style="border-radius:24px; margin:20px;">
+            <h3 style="text-align:center; margin-bottom:25px;">ڕێکخستنەکان</h3>
+            
+            <button class="btn-outline" style="background:#F0FDF4; border-color:#86EFAC; color:#065F46; font-weight:800;" onclick="openReportModal()">📊 ڕاپۆرتی مانگانە</button>
+
+            <div class="settings-section">
+                <label class="settings-label">نرخی دراو (بهای ١ دۆلار)</label>
+                <div class="modern-input-wrapper" style="background:white; border:1px solid #E5E7EB; margin-bottom:10px;">
+                    <input type="number" step="0.01" class="modern-input" id="setRate" placeholder="1413.5" style="text-align:center; font-weight:bold; color:var(--primary);" oninput="saveSettingsRate()">
+                </div>
+                <div style="text-align:center; font-size:0.8rem; color:#6B7280;">
+                    نرخی ١٠٠ دۆلار: <span id="previewRate" style="color:var(--primary); font-weight:bold;">141,350</span> IQD
+                </div>
+            </div>
+
+            <button class="btn-outline" onclick="downloadBackup()">📥 دابەزاندنی داتا (Backup)</button>
+            <div style="position:relative; margin-bottom:10px;">
+                <button class="btn-outline" style="background:#F9FAFB;" onclick="document.getElementById('fileInput').click()">📤 گەڕاندنەوەی داتا (Restore)</button>
+                <input type="file" id="fileInput" style="display:none" onchange="restoreBackup(this)">
+            </div>
+            <button class="btn-outline" style="border-color:#FECACA; color:#EF4444; background:#FEF2F2;" onclick="clearAllData()">🗑️ سڕینەوەی هەموو داتا</button>
+            
+            <div class="btn-close" onclick="closeSpecificModal('settingsModal')">داخستن</div>
+        </div>
+    </div>
+
+    <div class="modal" id="reportModal" style="align-items:center;">
+        <div class="sheet" style="border-radius:24px; margin:20px; max-height:80vh;">
+            <h3 style="text-align:center; margin-bottom:20px;">📊 ڕاپۆرتی مانگانە</h3>
+            <div class="report-table-container">
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th>مانگ</th>
+                            <th style="color:var(--primary)">فرۆشتن</th>
+                            <th style="color:var(--danger)">کڕین</th>
+                            <th>قازانج</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportTableBody">
+                        </tbody>
+                </table>
+            </div>
+            <div class="btn-close" onclick="closeSpecificModal('reportModal')">داخستن</div>
+        </div>
+    </div>
+
+    <script>
+        // --- EMOJI CONFIGURATION ---
+        const IMG_MAP = {
+            'مراوی': '🦆',
+            'قەڵ': '🦃',
+            'قاز': '🦢',
+            'مرێشک': '🐔',
+            'ئالیک': '🌽',
+            'دەرمان': '💉',
+            'گشتی': '🏠'
+        };
+
+        // --- DB Setup (Version V38 FIXED) ---
+        let db; const DB_NAME = 'SeburiBizV38'; const STORE = 'tx_store';
+        let allTx = [];
+        let dollarRate = parseFloat(localStorage.getItem('dollarRate')) || 1413.5;
+        let currentType = 'income';
+        let currentCat = 'مراوی';
+        let currentCurr = 'IQD';
+        let customPrices = JSON.parse(localStorage.getItem('customPrices')) || {};
+        let marketPrices = {}; 
+        let currentStockCounts = {};
+        let currentBatchAges = {};
+        
+        let editingId = null; 
+
+        // PAGINATION GLOBALS
+        let currentPage = 1;
+        const itemsPerPage = 20;
+
+        updateRateDisplay();
+        initModalGrid();
+
+        let request = indexedDB.open(DB_NAME, 1);
+        request.onupgradeneeded = (e) => {
+            db = e.target.result;
+            db.createObjectStore(STORE, { keyPath: 'id', autoIncrement: true });
+        };
+        request.onsuccess = (e) => {
+            db = e.target.result;
+            loadData();
+        };
+
+        // --- HELPER FOR SCROLL LOCK ---
+        function toggleBodyLock(isLocked) {
+            if (isLocked) {
+                document.body.classList.add('no-scroll');
+            } else {
+                document.body.classList.remove('no-scroll');
+            }
+        }
+
+        // --- AUTO SCROLL SETUP ---
+        function setupAutoScroll() {
+            const inputs = document.querySelectorAll('.sheet input');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    setTimeout(() => {
+                        this.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 400);
+                });
+            });
+        }
+        setupAutoScroll();
+
+        // --- MARKET RADAR ---
+        function checkMarketRadar() {
+            const radarBox = document.getElementById('marketRadar');
+            radarBox.innerHTML = '';
+            
+            const today = new Date();
+            const events = [
+                { name: "سەری ساڵی نوێ ٢٠٢٦", date: new Date("2026-01-01"), type: "fixed" },
+                { name: "جەژنی ڕەمەزان", date: new Date("2025-03-30"), type: "islamic" },
+                { name: "جەژنی ڕەمەزان", date: new Date("2026-03-19"), type: "islamic" },
+                { name: "جەژنی قوربان", date: new Date("2025-06-06"), type: "islamic" },
+                { name: "جەژنی قوربان", date: new Date("2026-05-27"), type: "islamic" },
+                { name: "نەورۆز", date: new Date("2025-03-21"), type: "fixed" },
+                { name: "نەورۆز", date: new Date("2026-03-21"), type: "fixed" }
+            ];
+
+            let bestMsg = "";
+            let bestTitle = "";
+            let daysLeft = 999;
+            let icon = "📡";
+
+            for (let e of events) {
+                const diffTime = e.date - today;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+                
+                if (diffDays > 0 && diffDays < daysLeft) {
+                    daysLeft = diffDays;
+                    if (diffDays >= 40 && diffDays <= 60) {
+                        bestTitle = "هەلی زێڕین: کاتی کڕینە!";
+                        bestMsg = `تەنها ${diffDays} ڕۆژ ماوە بۆ <b>${e.name}</b>. ئەگەر ئێستا جوجکە بێنیت، بۆ جەژن ئامادە دەبێت و بە گران دەیفرۆشیت.`;
+                        icon = "🐣";
+                        break;
+                    } else if (diffDays <= 20 && diffDays >= 5) {
+                        bestTitle = "ئاگاداری: کاتی فرۆشتنە";
+                        bestMsg = `بازاڕ گەرمە! تەنها ${diffDays} ڕۆژ ماوە بۆ <b>${e.name}</b>. ئەگەر بەرهەمت هەیە، ئێستا کاتی ساغکردنەوەیەتی.`;
+                        icon = "💰";
+                        break;
+                    }
+                }
+            }
+
+            if (bestTitle) {
+                radarBox.innerHTML = `
+                    <div class="radar-card">
+                        <div class="radar-header">
+                            <span class="radar-icon">${icon}</span>
+                            <span class="radar-title">${bestTitle}</span>
+                            <span class="radar-tag">پێشنیاری زیرەک</span>
+                        </div>
+                        <div class="radar-msg">${bestMsg}</div>
+                    </div>
+                `;
+            }
+        }
+
+        // --- Logic ---
+        function initModalGrid() {
+            const grid = document.getElementById('catGrid');
+            grid.innerHTML = '';
+            const cats = ['مراوی', 'قەڵ', 'قاز', 'مرێشک', 'ئالیک', 'دەرمان', 'گشتی'];
+            cats.forEach(c => {
+                grid.innerHTML += `
+                    <div class="cat-box ${c==='مراوی'?'selected':''}" onclick="setCat('${c}', this)">
+                        <span class="cat-emoji">${IMG_MAP[c]}</span>
+                        <span class="cat-name">${c}</span>
+                    </div>
+                `;
+            });
+        }
+
+        function parseNum(str) {
+            if(!str) return 0;
+            const map = {"٠":0,"١":1,"٢":2,"٣":3,"٤":4,"٥":5,"٦":6,"٧":7,"٨":8,"٩":9};
+            str = str.toString().replace(/[٠-٩]/g, m => map[m]).replace(/,/g, '').replace(/\s/g, '');
+            return parseFloat(str) || 0;
+        }
+
+        function formatMoney(amount) { 
+            return new Intl.NumberFormat('en-IQ').format(amount); 
+        }
+        function daysBetween(date1, date2) {
+            const oneDay = 24 * 60 * 60 * 1000; 
+            return Math.round(Math.abs((date1 - date2) / oneDay));
+        }
+
+        // --- Settings & Reports ---
+        function openSettings() { 
+            toggleBodyLock(true);
+            document.getElementById('settingsModal').classList.add('active');
+            document.getElementById('setRate').value = dollarRate;
+            document.getElementById('previewRate').innerText = formatMoney(dollarRate * 100);
+        }
+        function saveSettingsRate() {
+            const val = parseFloat(document.getElementById('setRate').value);
+            if(val > 0) {
+                dollarRate = val;
+                localStorage.setItem('dollarRate', dollarRate);
+                updateRateDisplay();
+                document.getElementById('previewRate').innerText = formatMoney(dollarRate * 100);
+            }
+        }
+        
+        function openReportModal() {
+            document.getElementById('settingsModal').classList.remove('active');
+            toggleBodyLock(true); 
+            document.getElementById('reportModal').classList.add('active');
+            generateMonthlyReport();
+        }
+
+        function generateMonthlyReport() {
+            const tbody = document.getElementById('reportTableBody');
+            tbody.innerHTML = '';
+            
+            const groups = {};
+            allTx.forEach(item => {
+                const date = new Date(item.date);
+                const key = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}`;
+                if(!groups[key]) groups[key] = { inc: 0, exp: 0 };
+                
+                if(item.type === 'income') {
+                    const paid = item.paidAmount !== undefined ? item.paidAmount : item.amount;
+                    groups[key].inc += paid;
+                }
+                if(item.type === 'expense') {
+                    groups[key].exp += item.amount;
+                }
+            });
+
+            const sortedKeys = Object.keys(groups).sort().reverse();
+            
+            if(sortedKeys.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#9CA3AF;">هیچ داتایەک نییە</td></tr>';
+                return;
+            }
+
+            sortedKeys.forEach(key => {
+                const d = groups[key];
+                const net = d.inc - d.exp;
+                const netColor = net >= 0 ? '#065F46' : '#DC2626';
+                const netSign = net > 0 ? '+' : '';
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="direction:ltr;">${key}</td>
+                    <td style="color:var(--primary);">${formatMoney(d.inc)}</td>
+                    <td style="color:var(--danger);">${formatMoney(d.exp)}</td>
+                    <td class="report-net" style="color:${netColor};">${netSign}${formatMoney(net)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function downloadBackup() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allTx));
+            const dl = document.createElement('a');
+            dl.setAttribute("href", dataStr);
+            dl.setAttribute("download", "seburi_backup_" + new Date().toISOString().slice(0,10) + ".json");
+            document.body.appendChild(dl); dl.click(); dl.remove();
+        }
+        function restoreBackup(input) {
+            const file = input.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if(Array.isArray(data)) {
+                        if(confirm("دڵنیای؟ هەموو داتاکانی ئێستات دەسڕدرێتەوە و ئەمانە دادەنرێت.")) {
+                            const t = db.transaction([STORE], 'readwrite');
+                            t.objectStore(STORE).clear(); 
+                            data.forEach(item => { delete item.id; t.objectStore(STORE).add(item); });
+                            t.oncomplete = () => { alert("سەرکەوتوو بوو!"); document.getElementById('settingsModal').classList.remove('active'); toggleBodyLock(false); loadData(); };
+                        }
+                    }
+                } catch(err) { alert("فایلەکە هەڵەیە"); }
+            };
+            reader.readAsText(file);
+        }
+        
+        // --- FIXED CLEAR ALL DATA ---
+        function clearAllData() {
+            const conf = prompt("بۆ سڕینەوەی هەموو داتا بنووسە 'delete'");
+            if(conf === 'delete') {
+                const t = db.transaction([STORE], 'readwrite');
+                t.objectStore(STORE).clear();
+                t.oncomplete = () => { 
+                    allTx = []; // Immediately clear memory
+                    loadData(); // Refresh UI
+                    document.getElementById('settingsModal').classList.remove('active'); 
+                    toggleBodyLock(false);
+                    alert("هەموو داتاكان سڕانەوە ✅");
+                };
+            }
+        }
+
+        function updateRateDisplay() { document.getElementById('rateDisplay').innerText = formatMoney(dollarRate * 100); }
+
+        // --- DEBT & MODAL LOGIC ---
+        function toggleDebtFields() {
+            const isDebt = document.getElementById('isDebtCheck').checked;
+            const debtDiv = document.getElementById('debtFieldsContainer');
+            if(isDebt) {
+                debtDiv.style.display = 'block';
+                document.getElementById('amount').placeholder = 'بڕی قەرز (کۆی گشتی)';
+            } else {
+                debtDiv.style.display = 'none';
+                document.getElementById('amount').placeholder = 'بڕی پارە';
+            }
+        }
+
+        function openModal() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            toggleBodyLock(true);
+
+            document.getElementById('modal').classList.add('active');
+            document.querySelector('.sheet').scrollTop = 0;
+
+            editingId = null; 
+            document.getElementById('btnSave').innerText = 'تۆمارکردن ✓';
+            
+            document.getElementById('amount').value = '';
+            document.getElementById('quantity').value = '';
+            document.getElementById('initialAge').value = ''; 
+            document.getElementById('note').value = '';
+            document.getElementById('downPayment').value = '';
+            document.getElementById('unitPriceHint').style.display = 'none';
+            document.getElementById('qtyWrapper').classList.remove('error'); 
+            document.getElementById('btnSave').disabled = false;
+            
+            document.getElementById('isDebtCheck').checked = false;
+            document.getElementById('debtorName').value = '';
+            toggleDebtFields();
+
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            document.getElementById('txDate').value = `${year}-${month}-${day}`;
+
+            document.getElementById('convertedAmount').innerText = '';
+            setCurr('IQD');
+            setType('income'); 
+            
+            const boxes = document.querySelectorAll('.cat-box');
+            boxes.forEach(b => b.classList.remove('selected'));
+            boxes[0].classList.add('selected');
+            setCat('مراوی', boxes[0]); 
+        }
+
+        function closeSpecificModal(id) {
+            document.getElementById(id).classList.remove('active');
+            toggleBodyLock(false);
+        }
+
+        function editItem(id) {
+            const item = allTx.find(x => x.id === id);
+            if(!item) return;
+
+            editingId = id;
+            window.scrollTo({ top: 0, behavior: 'smooth' }); 
+            toggleBodyLock(true);
+
+            document.getElementById('modal').classList.add('active');
+            document.querySelector('.sheet').scrollTop = 0;
+
+            document.getElementById('btnSave').innerText = 'نوێکردنەوە 🔄';
+
+            document.getElementById('amount').value = item.amount;
+            document.getElementById('quantity').value = item.quantity > 0 ? item.quantity : '';
+            document.getElementById('initialAge').value = item.initialAge > 0 ? item.initialAge : '';
+            document.getElementById('note').value = item.note.replace(/\s?\(\$.*\)/, ''); 
+            document.getElementById('txDate').value = item.date.split('T')[0];
+            
+            document.getElementById('isDebtCheck').checked = item.isDebt;
+            document.getElementById('debtorName').value = item.debtorName || '';
+            document.getElementById('downPayment').value = item.paidAmount && item.paidAmount > 0 ? item.paidAmount : '';
+            toggleDebtFields();
+
+            setType(item.type);
+            
+            const boxes = document.querySelectorAll('.cat-box');
+            let targetBox = null;
+            boxes.forEach(b => {
+                b.classList.remove('selected');
+                if(b.innerText.includes(item.category)) {
+                    b.classList.add('selected');
+                    targetBox = b;
+                }
+            });
+            setCat(item.category, targetBox);
+            validateAndCalc();
+        }
+
+        function quickSell(category) {
+            openModal();
+            setType('income');
+            const boxes = document.querySelectorAll('.cat-box');
+            let targetBox = null;
+            boxes.forEach(b => {
+                b.classList.remove('selected');
+                if(b.innerText.includes(category)) {
+                    b.classList.add('selected');
+                    targetBox = b;
+                }
+            });
+            setCat(category, targetBox);
+
+            document.getElementById('note').value = 'فرۆشتن (Quick Sell)';
+            document.getElementById('quantity').focus();
+            
+            if(marketPrices[category]) {
+                const hint = document.getElementById('unitPriceHint');
+                hint.innerText = `نرخی تاک: ${formatMoney(Math.round(marketPrices[category]))} IQD`;
+                hint.style.display = 'block';
+            }
+        }
+
+        // DEBT LIST
+        function openDebtModal() {
+            toggleBodyLock(true);
+            document.getElementById('debtListModal').classList.add('active');
+            const list = document.getElementById('debtList');
+            list.innerHTML = '';
+            
+            let hasDebt = false;
+            allTx.forEach(item => {
+                if(item.isDebt && !item.isSettled) {
+                    hasDebt = true;
+                    const remaining = item.amount - (item.paidAmount || 0);
+                    const div = document.createElement('div');
+                    div.style.background = '#F5F3FF';
+                    div.style.padding = '15px';
+                    div.style.borderRadius = '12px';
+                    div.style.marginBottom = '10px';
+                    div.style.border = '1px solid #DDD6FE';
+                    
+                    const waText = `سڵاو کاک ${item.debtorName}، قەرزەکەت لای ئێمە ماوەی ${formatMoney(remaining)} دینارە. سوپاس.`;
+                    const waLink = `https://wa.me/?text=${encodeURIComponent(waText)}`;
+
+                    div.innerHTML = `
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                            <span style="font-weight:bold; color:#5B21B6;">👤 ${item.debtorName}</span>
+                            <div style="text-align:left;">
+                                <span style="font-weight:bold; font-size:1.1rem; color:#7C3AED;">${formatMoney(remaining)}</span>
+                                <div style="font-size:0.7rem; color:#6B7280;">کۆی گشتی: ${formatMoney(item.amount)}</div>
+                            </div>
+                        </div>
+                        <div style="font-size:0.8rem; color:#6B7280; margin-bottom:10px;">
+                            ${IMG_MAP[item.category]} ${item.category} (${item.quantity}) • ${new Date(item.date).toLocaleDateString()}
+                        </div>
+                        <div style="display:flex; gap:10px;">
+                            <a href="${waLink}" target="_blank" style="flex:0.3; text-decoration:none;">
+                                <button style="width:100%; height:100%; background:var(--whatsapp); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer; font-size:1.2rem;">💬</button>
+                            </a>
+                            <button onclick="addDebtPayment(${item.id})" style="flex:1; padding:8px; background:#10B981; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">وەرگرتنی بەشێک 💵</button>
+                        </div>
+                    `;
+                    list.appendChild(div);
+                }
+            });
+            document.getElementById('noDebtMsg').style.display = hasDebt ? 'none' : 'block';
+        }
+
+        function addDebtPayment(id) {
+            const item = allTx.find(x => x.id === id);
+            if(!item) return;
+            
+            const remaining = item.amount - (item.paidAmount || 0);
+            const payStr = prompt(`بڕی قەرز: ${formatMoney(remaining)} دینار\n\nکابرا چەندی هێناوە؟`, "");
+            
+            if(payStr) {
+                const payAmt = parseNum(payStr);
+                if(payAmt > 0) {
+                    const t = db.transaction([STORE], 'readwrite');
+                    const store = t.objectStore(STORE);
+                    
+                    item.paidAmount = (item.paidAmount || 0) + payAmt;
+                    if(item.paidAmount >= item.amount) {
+                        item.isSettled = true;
+                        alert("قەرزەکە بە تەواوی وەرگیرایەوە ✅");
+                    } else {
+                        alert(`بڕی ${formatMoney(payAmt)} وەرگیرا. ماوە: ${formatMoney(item.amount - item.paidAmount)}`);
+                    }
+                    
+                    store.put(item);
+                    t.oncomplete = () => {
+                        openDebtModal(); 
+                        loadData(); 
+                    };
+                }
+            }
+        }
+
+        function validateAndCalc() {
+            const qty = parseNum(document.getElementById('quantity').value);
+            const limit = document.getElementById('stockHint');
+            const wrap = document.getElementById('qtyWrapper');
+            const btn = document.getElementById('btnSave');
+            
+            let hasError = false;
+            if((currentType === 'income' || currentType === 'death') && ['مراوی', 'قەڵ', 'قاز', 'مرێشک'].includes(currentCat)) {
+                 const available = currentStockCounts[currentCat] || 0;
+                 if(qty > available && !editingId) {
+                      limit.innerText = `⚠️ بەشی پێویست نییە! تەنها ${available} ماوە`;
+                      limit.className = 'stock-limit-hint warning';
+                      wrap.classList.add('error');
+                      btn.disabled = true;
+                      hasError = true;
+                 } else {
+                      limit.innerText = `کۆی بەردەست: ${available} دانە`;
+                      limit.className = 'stock-limit-hint';
+                      wrap.classList.remove('error');
+                      btn.disabled = false;
+                 }
+            } else {
+                wrap.classList.remove('error');
+                btn.disabled = false;
+                limit.innerText = '';
+            }
+
+            if(!hasError && currentType === 'income' && marketPrices[currentCat] && !editingId) {
+                const unitPrice = marketPrices[currentCat];
+                if(qty > 0) {
+                    const total = Math.round(qty * unitPrice);
+                    document.getElementById('amount').value = total;
+                    updateConversion();
+                } else {
+                    document.getElementById('amount').value = '';
+                    updateConversion();
+                }
+            }
+        }
+
+        function closeModal() { 
+            document.getElementById('modal').classList.remove('active');
+            toggleBodyLock(false);
+        }
+
+        function setCurr(c) {
+            currentCurr = c;
+            document.getElementById('currIQD').className = `cur-opt ${c==='IQD' ? 'active' : ''}`;
+            document.getElementById('currUSD').className = `cur-opt ${c==='USD' ? 'active' : ''}`;
+            updateConversion();
+        }
+
+        document.getElementById('amount').addEventListener('input', updateConversion);
+        function updateConversion() {
+            const val = parseNum(document.getElementById('amount').value);
+            const disp = document.getElementById('convertedAmount');
+            if(val > 0 && currentCurr === 'USD') {
+                const iqd = val * dollarRate;
+                disp.innerText = `= ${formatMoney(Math.round(iqd))} IQD`;
+            } else { disp.innerText = ''; }
+        }
+
+        function setType(type) {
+            currentType = type;
+            document.getElementById('btnInc').className = `type-opt inc ${type==='income'?'active':''}`;
+            document.getElementById('btnExp').className = `type-opt exp ${type==='expense'?'active':''}`;
+            document.getElementById('btnDie').className = `type-opt die ${type==='death'?'active':''}`;
+            
+            const amtGroup = document.getElementById('amountGroup');
+            
+            const debtDiv = document.getElementById('debtToggleDiv');
+            if(type === 'income') { debtDiv.style.display = 'flex'; }
+            else { debtDiv.style.display = 'none'; document.getElementById('isDebtCheck').checked = false; toggleDebtFields(); }
+
+            if(type === 'death') {
+                amtGroup.style.display = 'none';
+                document.getElementById('amount').value = 0; 
+            } else {
+                amtGroup.style.display = 'block';
+                document.getElementById('amount').value = '';
+            }
+
+            setCat(currentCat, document.querySelector('.cat-box.selected'));
+        }
+
+        function setCat(name, el) {
+            currentCat = name;
+            if(el) {
+                document.querySelectorAll('.cat-box').forEach(b => b.classList.remove('selected'));
+                el.classList.add('selected');
+            }
+            
+            const limit = document.getElementById('stockHint');
+            if(['مراوی', 'قەڵ', 'قاز', 'مرێشک'].includes(name)) {
+                const available = currentStockCounts[name] || 0;
+                limit.innerText = `کۆی بەردەست: ${available} دانە`;
+                limit.style.display = 'block';
+            } else { limit.style.display = 'none'; }
+
+            if(currentType === 'income' && marketPrices[name] && !editingId) {
+                 const hint = document.getElementById('unitPriceHint');
+                 hint.innerText = `نرخی تاک: ${formatMoney(Math.round(marketPrices[name]))} IQD`;
+                 hint.style.display = 'block';
+                 validateAndCalc(); 
+            } else { document.getElementById('unitPriceHint').style.display = 'none'; }
+
+            const qtyInput = document.getElementById('quantity');
+            const qtyWrapper = document.getElementById('qtyWrapper');
+            const ageDiv = document.getElementById('ageInputDiv');
+            const animals = ['مراوی', 'قەڵ', 'قاز', 'مرێشک'];
+
+            if (animals.includes(name)) {
+                qtyWrapper.style.display = 'flex';
+                qtyInput.placeholder = 'ژمارە (دانە)';
+                ageDiv.style.display = 'flex';
+            } else if (name === 'ئالیک') {
+                qtyWrapper.style.display = 'flex';
+                qtyInput.placeholder = 'کێش (کیلۆ)';
+                ageDiv.style.display = 'none';
+                if(currentType !== 'expense') setType('expense');
+            } else {
+                qtyWrapper.style.display = 'none';
+                qtyInput.value = ''; 
+                ageDiv.style.display = 'none';
+                if(currentType !== 'expense') setType('expense');
+            }
+            qtyWrapper.classList.remove('error');
+            document.getElementById('btnSave').disabled = false;
+        }
+
+        function saveItem() {
+            let amt = parseNum(document.getElementById('amount').value);
+            let downPay = parseNum(document.getElementById('downPayment').value);
+            
+            const qty = parseNum(document.getElementById('quantity').value);
+            const initAge = parseNum(document.getElementById('initialAge').value);
+            const note = document.getElementById('note').value;
+            const dateInput = document.getElementById('txDate').value || new Date().toISOString();
+            
+            const isDebt = document.getElementById('isDebtCheck').checked;
+            const debtorName = document.getElementById('debtorName').value;
+
+            if(currentType !== 'death' && amt === 0) { alert("تکایە بڕی پارە بنووسە"); return; }
+            if(isDebt && !debtorName) { alert("تکایە ناوی کڕیار بنووسە"); return; }
+
+            let finalAmt = amt;
+            let noteSuffix = "";
+            if(currentCurr === 'USD' && currentType !== 'death') {
+                finalAmt = amt * dollarRate;
+                noteSuffix = ` ($${formatMoney(amt)})`;
+            }
+
+            const tx = {
+                type: currentType, category: currentCat, amount: finalAmt, quantity: qty,
+                initialAge: initAge, 
+                note: (note || currentCat) + noteSuffix,
+                date: new Date(dateInput).toISOString(),
+                isDebt: isDebt,
+                debtorName: debtorName,
+                isSettled: false,
+                paidAmount: isDebt ? downPay : finalAmt
+            };
+            
+            if(isDebt && downPay >= finalAmt) {
+                tx.isSettled = true;
+            }
+
+            const t = db.transaction([STORE], 'readwrite');
+            const store = t.objectStore(STORE);
+
+            if (editingId) {
+                tx.id = editingId;
+                store.put(tx);
+            } else {
+                store.add(tx);
+            }
+            
+            t.oncomplete = () => { closeModal(); loadData(); };
+        }
+
+        // --- FIXED SINGLE DELETE (OPTIMIZED) ---
+        function deleteItem(id) {
+            if(confirm("دڵنیای لە سڕینەوەی ئەم تۆمارە؟")) {
+                const numericId = Number(id);
+                
+                const t = db.transaction([STORE], 'readwrite');
+                const req = t.objectStore(STORE).delete(numericId);
+                
+                req.onsuccess = () => {
+                     // لابردنی ئایتمەکە لە لیستی کاتیی بەرنامە (allTx) بۆ نوێکردنەوەی دەستبەجێ
+                    allTx = allTx.filter(item => item.id !== numericId);
+                    
+                    // دووبارە ژماردنەوە و پیشاندانەوەی ڕاستەوخۆ
+                    calculateStats();
+                    renderListOnly(); 
+                    checkMarketRadar();
+
+                    // گرنگ: ئەگەر پەڕەی ئێستا بەتاڵ بوو، دەگەڕێینەوە بۆ پەڕەی پێشوو.
+                    const totalItems = allTx.length;
+                    const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+                    if (currentPage > totalPages) {
+                        currentPage = totalPages;
+                        renderListOnly();
+                    }
+                };
+                
+                req.onerror = (e) => {
+                    console.error("Delete failed:", e.target.error);
+                    alert("سڕینەوە سەرکەوتوو نەبوو: " + e.target.error.name);
+                }
+            }
+        }
+
+
+        function loadData() {
+            const t = db.transaction([STORE], 'readonly');
+            t.objectStore(STORE).getAll().onsuccess = (e) => {
+                allTx = e.target.result || [];
+                allTx.sort((a,b) => new Date(b.date) - new Date(a.date));
+                calculateStats(); 
+                resetPageAndRender(); 
+                checkMarketRadar();
+            };
+        }
+
+        function setCustomPrice(cat, price) {
+            const p = parseFloat(price);
+            if(p > 0) { customPrices[cat] = p; } else { delete customPrices[cat]; }
+            localStorage.setItem('customPrices', JSON.stringify(customPrices));
+            calculateStats();
+        }
+
+        function calculateStats() {
+             let stock = { 'مراوی':0, 'قەڵ':0, 'قاز':0, 'مرێشک':0 };
+            let batchAges = { 'مراوی':0, 'قەڵ':0, 'قاز':0, 'مرێشک':0 };
+            let hasStock = { 'مراوی':false, 'قەڵ':false, 'قاز':false, 'مرێشک':false };
+            let directCosts = { 'مراوی':0, 'قەڵ':0, 'قاز':0, 'مرێشک':0 }; 
+            let sharedExpenses = 0; 
+            let totalFeedKg = 0;
+            let totalDeaths = 0;
+            let firstPurchaseDate = null;
+            let lastTransactionDate = null;
+
+            const weights = { 'مرێشک': 1, 'مراوی': 1.5, 'قاز': 2, 'قەڵ': 3 };
+            let balance = 0, exp = 0, income = 0;
+            const today = new Date();
+
+            allTx.forEach(item => {
+                const itemDate = new Date(item.date);
+                if(!firstPurchaseDate || itemDate < firstPurchaseDate) firstPurchaseDate = itemDate;
+                if(!lastTransactionDate || itemDate > lastTransactionDate) lastTransactionDate = itemDate;
+
+                if(item.type === 'income') {
+                    const paid = item.paidAmount !== undefined ? item.paidAmount : item.amount;
+                    balance += paid;
+                    income += paid;
+                }
+                
+                if(item.type === 'expense') { 
+                    balance -= item.amount; 
+                    exp += item.amount; 
+                    if(directCosts.hasOwnProperty(item.category)) {
+                        directCosts[item.category] += item.amount;
+                        if(!hasStock[item.category]) {
+                            const daysSince = daysBetween(today, itemDate);
+                            batchAges[item.category] = daysSince + (item.initialAge || 0);
+                            hasStock[item.category] = true;
+                        }
+                    } else { sharedExpenses += item.amount; }
+                    if(item.category === 'ئالیک') totalFeedKg += (item.quantity || 0);
+                }
+                
+                let q = item.quantity || 0;
+                if(stock.hasOwnProperty(item.category)) {
+                    if(item.type === 'expense') stock[item.category] += q;
+                    if(item.type === 'income') stock[item.category] -= q;
+                    if(item.type === 'death') { stock[item.category] -= q; totalDeaths += q; }
+                }
+            });
+
+            currentStockCounts = stock;
+            currentBatchAges = batchAges;
+
+            // CHECK VET ALERTS
+            const alertBox = document.getElementById('vetAlerts');
+            alertBox.innerHTML = ''; // Reset
+            Object.keys(batchAges).forEach(cat => {
+                const age = batchAges[cat];
+                const count = stock[cat];
+                if(count > 0 && age > 0) {
+                    let msg = "";
+                    if(age >= 12 && age <= 16) msg = `💉 کاتی کوتانی نیوکاسڵە بۆ ${cat}`;
+                    if(age >= 20 && age <= 25) msg = `🌽 کاتی گۆڕینی ئالیکە بۆ (گەشە) بۆ ${cat}`;
+                    if(age >= 1 && age <= 5) msg = `🐥 ئالیکی وردە (Start) بدە بە ${cat}`;
+                    
+                    if(msg) {
+                        alertBox.innerHTML += `
+                            <div class="vet-alert" onclick="this.style.display='none'">
+                                <div style="display:flex; align-items:center;">
+                                    <span class="vet-icon">⚠️</span>
+                                    <span class="vet-text">${msg} (${age} ڕۆژ)</span>
+                                </div>
+                                <span class="vet-dismiss">✖</span>
+                            </div>
+                        `;
+                    }
+                }
+            });
+
+            let totalUnits = 0;
+            for (const [key, count] of Object.entries(stock)) { if(count > 0) totalUnits += count * weights[key]; }
+            
+            let costPerUnit = totalUnits > 0 ? (sharedExpenses / totalUnits) : 0;
+            let feedPerUnit = totalUnits > 0 ? (totalFeedKg / totalUnits) : 0;
+            let totalPotentialRevenue = 0;
+
+            ['مراوی', 'قەڵ', 'قاز', 'مرێشک'].forEach(key => {
+                const enKey = {'مراوی':'Duck','قەڵ':'Turkey','قاز':'Goose','مرێشک':'Chicken'}[key];
+                document.getElementById('stock' + enKey).innerText = stock[key];
+                
+                if(stock[key] > 0 && batchAges[key] > 0) {
+                    document.getElementById('age' + enKey).innerText = `${batchAges[key]} ڕۆژ`;
+                } else { document.getElementById('age' + enKey).innerText = ''; }
+
+                // SMART MARGIN BADGE LOGIC
+                const badge = document.getElementById('margin' + enKey);
+                if(stock[key] > 0) {
+                    let directCostPerHead = (directCosts[key] || 0) / stock[key];
+                    let shareOfShared = weights[key] * costPerUnit;
+                    let finalRealCost = directCostPerHead + shareOfShared;
+                    
+                    let currentMarket = marketPrices[key] || 0;
+                    if(currentMarket > 0) {
+                        let margin = currentMarket - finalRealCost;
+                        if(margin > 0) {
+                            badge.className = 'margin-badge profit';
+                            badge.innerText = `قازانج: ${formatMoney(Math.round(margin))}+`;
+                        } else {
+                            badge.className = 'margin-badge loss';
+                            badge.innerText = `زەرەر: ${formatMoney(Math.round(Math.abs(margin)))}-`;
+                        }
+                    } else {
+                        badge.className = 'margin-badge neutral';
+                        badge.innerText = `تێچوو: ${formatMoney(Math.round(finalRealCost))}`;
+                    }
+                } else {
+                    badge.className = 'margin-badge neutral';
+                    badge.innerText = '---';
+                }
+            });
+
+            // Analysis Loop for Total Revenue
+            if(totalUnits > 0 || totalDeaths > 0) {
+                if(totalFeedKg > 0) {
+                    document.getElementById('feedAnalysis').style.display = 'block';
+                    document.getElementById('totalFeedUsed').innerText = formatMoney(totalFeedKg) + ' کگم';
+                    if(firstPurchaseDate) {
+                        const daysHeld = Math.max(1, daysBetween(today, firstPurchaseDate));
+                        const dailyUsage = totalFeedKg / daysHeld;
+                        document.getElementById('dailyFeedUsage').innerText = `~${dailyUsage.toFixed(1)} کگم/ڕۆژ`;
+                    }
+                } else { document.getElementById('feedAnalysis').style.display = 'none'; }
+
+                const analysisDiv = document.getElementById('costAnalysis');
+                analysisDiv.innerHTML = '';
+
+                for (const [key, count] of Object.entries(stock)) {
+                    if(count > 0) {
+                        let directCostPerHead = (directCosts[key] || 0) / count;
+                        let shareOfShared = weights[key] * costPerUnit;
+                        let finalRealCost = directCostPerHead + shareOfShared;
+
+                        let userPrice = customPrices[key];
+                        let suggestedPrice = userPrice ? userPrice : (finalRealCost * 1.25);
+                        marketPrices[key] = suggestedPrice; 
+
+                        let profit = suggestedPrice - finalRealCost;
+                        totalPotentialRevenue += suggestedPrice * count;
+
+                        let profitColor = profit >= 0 ? '#065F46' : '#DC2626';
+                        let profitBg = profit >= 0 ? '#D1FAE5' : '#FEE2E2';
+                        let profitSign = profit >= 0 ? '+' : '';
+
+                        let estimatedFeed = weights[key] * feedPerUnit;
+                        let dailyPerHeadGram = 0;
+                        if(firstPurchaseDate) {
+                             const daysHeld = Math.max(1, daysBetween(today, firstPurchaseDate));
+                             dailyPerHeadGram = (estimatedFeed / daysHeld) * 1000;
+                        }
+
+                        analysisDiv.innerHTML += `
+                            <div class="analysis-row">
+                                <div class="row-header">
+                                    <div style="display:flex; align-items:center; gap:8px;">
+                                        <span style="font-size:1.5rem;">${IMG_MAP[key]}</span>
+                                        <span>${key} (${count})</span>
+                                    </div>
+                                    <span style="color:var(--danger)">تێچوو: ${formatMoney(Math.round(finalRealCost))}</span>
+                                </div>
+                                <div class="row-details">
+                                    <span>تەمەن: ${batchAges[key]} ڕۆژ</span>
+                                    <span style="background:#FEF3C7; color:#92400E; padding:1px 5px; border-radius:4px;">خواردن: ~${Math.round(dailyPerHeadGram)} گرام/ڕۆژ</span>
+                                </div>
+                                <div class="price-edit-row">
+                                    <div style="font-size:0.8rem; color:#4B5563;">فرۆشتن:</div>
+                                    <input type="number" class="manual-price-input" 
+                                        value="${Math.round(suggestedPrice)}" 
+                                        onchange="setCustomPrice('${key}', this.value)"
+                                        placeholder="نرخ">
+                                    <div class="profit-display" style="color:${profitColor}; background:${profitBg}; padding:4px 8px; border-radius:6px;">
+                                        ${profitSign}${formatMoney(Math.round(profit))}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+                document.getElementById('projectedProfit').style.display = 'block';
+                document.getElementById('totalAssetValue').innerText = formatMoney(Math.round(totalPotentialRevenue)) + ' IQD';
+                if(totalDeaths > 0) {
+                        analysisDiv.innerHTML += `<div class="analysis-row" style="background:#FEF2F2; border-color:#FECACA;"><div class="row-header"><span style="color:#DC2626">⚠️ ئاگاداری مرداربوون</span><span style="color:#DC2626">${totalDeaths} دانە</span></div></div>`;
+                }
+            } else {
+                document.getElementById('projectedProfit').style.display = 'none';
+                document.getElementById('feedAnalysis').style.display = 'none';
+                analysisDiv.innerHTML = '<div style="text-align:center; color:#9CA3AF; font-size:0.85rem; padding:10px;">داتای پێویست نییە بۆ شیکاری</div>';
+            }
+
+            document.getElementById('totalBalance').innerText = formatMoney(balance);
+            document.getElementById('totalExpense').innerText = formatMoney(exp);
+            document.getElementById('totalIncomeDisp').innerText = formatMoney(income);
+
+            let totalVol = income + exp;
+            if(totalVol > 0) {
+                document.getElementById('barInc').style.width = (income / totalVol * 100) + '%';
+                document.getElementById('barExp').style.width = (exp / totalVol * 100) + '%';
+            } else {
+                document.getElementById('barInc').style.width = '0%';
+                document.getElementById('barExp').style.width = '0%';
+            }
+        }
+
+        function shareInvoice(id) {
+            const item = allTx.find(x => x.id === id);
+            if(!item) return;
+            
+            let txt = `*پسوڵەی سیستەمی کێڵگە*\n-------------------\n`;
+            txt += `بەروار: ${new Date(item.date).toLocaleDateString()}\n`;
+            txt += `بابەت: ${item.category} ${IMG_MAP[item.category]}\n`;
+            if(item.quantity) txt += `ژمارە: ${item.quantity}\n`;
+            txt += `کۆی گشتی: ${formatMoney(item.amount)} IQD\n`;
+            if(item.note) txt += `تێبینی: ${item.note}\n`;
+            txt += `-------------------\nسوپاس بۆ مامەڵەتان!`;
+            
+            const url = `https://wa.me/?text=${encodeURIComponent(txt)}`;
+            window.open(url, '_blank');
+        }
+
+        // --- PAGINATION LOGIC ---
+        function resetPageAndRender() {
+            currentPage = 1;
+            renderListOnly();
+        }
+
+        function changePage(delta) {
+            currentPage += delta;
+            renderListOnly();
+        }
+
+        function renderListOnly() {
+            const list = document.getElementById('list');
+            list.innerHTML = '';
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+
+            let filtered = allTx.filter(item => {
+                const textData = (item.category + ' ' + item.note + ' ' + (item.debtorName || '') + ' ' + item.amount).toLowerCase();
+                return !searchQuery || textData.includes(searchQuery);
+            });
+
+            const totalItems = filtered.length;
+            const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+            
+            if(currentPage < 1) currentPage = 1;
+            if(currentPage > totalPages) currentPage = totalPages;
+
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageItems = filtered.slice(start, end);
+
+            pageItems.forEach(item => {
+                const div = document.createElement('div');
+                const isDebtPending = item.isDebt && !item.isSettled;
+                
+                div.className = `t-item ${item.type === 'income' ? 'inc' : (item.type === 'death' ? '' : 'exp')} ${isDebtPending ? 'debt' : ''}`;
+                
+                let icon = IMG_MAP[item.category] || '📝';
+                let sign = item.type==='income' ? '+' : (item.type==='death' ? '' : '-');
+                let color = item.type==='income' ? 'var(--primary)' : 'var(--danger)';
+                if(isDebtPending) color = 'var(--purple)';
+
+                let unit = ''; let displayAge = '';
+                if(item.quantity > 0) {
+                    if(item.category === 'ئالیک') unit = ' کگم';
+                    else if(['مراوی','قەڵ','قاز','مرێشک'].includes(item.category)) {
+                        unit = ''; 
+                        if(item.initialAge > 0) displayAge = ` (تەمەن: ${item.initialAge} ڕۆژ)`;
+                    }
+                }
+
+                let subText = new Date(item.date).toLocaleDateString('en-GB') + displayAge;
+                let amountDisplay = formatMoney(Math.round(item.amount));
+                if(isDebtPending) {
+                    const remaining = item.amount - (item.paidAmount || 0);
+                    subText = `قەرز: ${item.debtorName} • ماوە: ${formatMoney(remaining)}`;
+                    amountDisplay = 'قەرز';
+                }
+
+                let shareBtn = '';
+                if(item.type === 'income') {
+                    shareBtn = `<button class="btn-icon wa" onclick="shareInvoice(${item.id})">📤</button>`;
+                }
+
+                div.innerHTML = `
+                    <div style="display:flex; gap:12px; align-items:center;">
+                        <div class="list-emoji-thumb">${icon}</div>
+                        <div>
+                            <div style="font-weight:700; font-size:0.95rem; color:var(--text-main);">${item.category} ${item.quantity>0 ? `(${item.quantity}${unit})` : ''}</div>
+                            <div style="font-size:0.75rem; color:#9CA3AF;">${subText}</div>
+                        </div>
+                    </div>
+                    <div style="text-align:left;">
+                         <div style="direction:ltr; font-weight:800; font-size:1rem; color:${item.type==='death'?'orange':color}">
+                            ${item.type==='death' ? 'مرداربو' : (isDebtPending ? amountDisplay : sign + amountDisplay)}
+                        </div>
+                    </div>
+                    <div class="action-btn-group">
+                         ${shareBtn}
+                         <button class="btn-icon edit" onclick="editItem(${item.id})">✎</button>
+                         <button class="btn-icon delete" onclick="deleteItem(${item.id})">🗑️</button>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+
+            document.getElementById('pageInfo').innerText = `پەڕەی ${currentPage} لە ${totalPages}`;
+            document.getElementById('btnPrev').disabled = (currentPage === 1);
+            document.getElementById('btnNext').disabled = (currentPage === totalPages);
+            
+            const controls = document.getElementById('paginationControls');
+            if(totalItems <= itemsPerPage && currentPage === 1) {
+                controls.style.display = 'none';
+            } else {
+                controls.style.display = 'flex';
+            }
+        }
+    </script>
+</body>
+</html>            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
             color: white; 
             padding-top: 80px; 
             padding-bottom: 100px; 
